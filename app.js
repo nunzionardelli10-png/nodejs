@@ -9,7 +9,13 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Use the router for handling routes
-app.use('/', indexRouter);
+app.get('/test-mail', async (req, res) => {
+  try {
+    res.json({ success: true });
+  } catch (error) {
+    res.json(error);
+  }
+});
 
 // Catch-all route for handling 404 errors
 app.use((req, res, next) => {
