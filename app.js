@@ -1,21 +1,31 @@
 const express = require('express');
 const path = require('path');
-const indexRouter = require('./routes/index');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from the "public" directory
+app.use(express.json());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Use the router for handling routes
-app.use('/', indexRouter);
+app.get('/', (req, res) => {
+    res.send('Backend Railway OK 🚀');
+});
 
-// Catch-all route for handling 404 errors
-app.use((req, res, next) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
-  });
+app.get('/test-email', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Route email fonctionne ✅',
+        resend: process.env.RESEND_API_KEY ? 'API KEY OK' : 'API KEY MANQUANTE'
+    });
+});
+
+app.use((req, res) => {
+    res.status(404).json({
+        error: 'Route not found'
+    });
+});
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
+    console.log(`Server running on port ${PORT}`);
 });
