@@ -19,7 +19,7 @@ app.get('/test-email', async (req, res) => {
   try {
     const data = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: 'nunzionardelli10@gmail.com',
+      to: 'snapworldfr@yahoo.com',
       subject: 'Test email depuis Railway',
       html: '<h1>Ça marche ✅</h1><p>Email envoyé depuis Railway</p>',
     });
