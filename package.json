@@ -5,9 +5,11 @@
   "main": "app.js",
   "author": "alphasec",
   "license": "MIT",
-  "dependencies": {
-    "express": "^4.19.2"
-  },
+"dependencies": {
+  "express": "^4.19.2",
+  "resend": "^4.0.0"
+},
+
   "scripts": {
     "start": "node app.js"
   }
