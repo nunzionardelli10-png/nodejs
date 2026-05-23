@@ -49,16 +49,15 @@ app.post('/email-verification/send-verification-code', async (req, res) => {
         });
 
         await resend.emails.send({
-            from: 'noreply@snapworld.fr'
-            to: email,
-            subject: 'Code de vérification',
-            html: `
-            <h1>Votre code</h1>
-            <h2>${code}</h2>
-            <p>Expire dans 15 minutes</p>
-            `
-        });
-
+    from: 'noreply@snapworld.fr',
+    to: email,
+    subject: 'Code de vérification',
+    html: `
+        <h1>Votre code</h1>
+        <h2>${code}</h2>
+        <p>Expire dans 15 minutes</p>
+    `
+});
         res.json({
             success: true,
             message: 'Code envoyé',
