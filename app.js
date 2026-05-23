@@ -49,7 +49,7 @@ app.post('/email-verification/send-verification-code', async (req, res) => {
         });
 
         await resend.emails.send({
-    from: 'noreply@snapworld.fr',
+    from: 'noreply@nexusnapia.com',
     to: email,
     subject: 'Code de vérification',
     html: `
