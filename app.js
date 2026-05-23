@@ -9,41 +9,105 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, 'public')));
+const verificationCodes = new Map();
 
 app.get('/', (req, res) => {
-  res.send('Backend Railway OK 🚀');
+    res.send('Backend Railway OK 🚀');
 });
 
-app.get('/test-email', async (req, res) => {
-  try {
-    const data = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: 'snapworldfr@yahoo.com',
-      subject: 'Test email depuis Railway',
-      html: '<h1>Ça marche ✅</h1><p>Email envoyé depuis Railway</p>',
-    });
+// Envoi code vérification
+app.post('/email-verification/send-verification-code', async (req, res) => {
+
+    try {
+
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email requis'
+            });
+        }
+
+        const code = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
+
+        verificationCodes.set(email, {
+            code,
+            expires: Date.now() + (15 * 60 * 1000)
+        });
+
+        await resend.emails.send({
+            from: 'onboarding@resend.dev',
+            to: email,
+            subject: 'Code de vérification',
+            html: `
+            <h1>Votre code</h1>
+            <h2>${code}</h2>
+            <p>Expire dans 15 minutes</p>
+            `
+        });
+
+        res.json({
+            success: true,
+            message: 'Code envoyé',
+            email
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+
+    }
+
+});
+
+
+// Vérification du code
+app.post('/email-verification/verify-code', (req, res) => {
+
+    const { email, code } = req.body;
+
+    const saved = verificationCodes.get(email);
+
+    if (!saved) {
+        return res.status(400).json({
+            success:false,
+            message:'Aucun code'
+        });
+    }
+
+    if (Date.now() > saved.expires) {
+
+        verificationCodes.delete(email);
+
+        return res.status(400).json({
+            success:false,
+            message:'Code expiré'
+        });
+    }
+
+    if (saved.code !== code) {
+
+        return res.status(400).json({
+            success:false,
+            message:'Code incorrect'
+        });
+    }
+
+    verificationCodes.delete(email);
 
     res.json({
-      success: true,
-      message: 'Email envoyé ✅',
-      data,
+        success:true,
+        message:'Email vérifié'
     });
 
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Route not found',
-  });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Serveur démarré ${PORT}`);
 });
