@@ -138,7 +138,86 @@ app.post('/email-verification/verify-code', (req, res) => {
     });
 
 });
+const resetCodes = new Map();
 
+app.post('/forgot-password/send-code', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email requis'
+            });
+        }
+
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        resetCodes.set(email, {
+            code,
+            expires: Date.now() + (15 * 60 * 1000)
+        });
+
+        await resend.emails.send({
+            from: 'noreply@nexusnapia.com',
+            to: email,
+            subject: 'Réinitialisation du mot de passe',
+            html: `
+                <h1>NexusNapia</h1>
+                <p>Votre code de réinitialisation est :</p>
+                <h2>${code}</h2>
+                <p>Ce code expire dans 15 minutes.</p>
+            `
+        });
+
+        res.json({
+            success: true,
+            message: 'Code de réinitialisation envoyé'
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+app.post('/forgot-password/verify-code', (req, res) => {
+    const { email, code } = req.body;
+
+    const saved = resetCodes.get(email);
+
+    if (!saved) {
+        return res.status(400).json({
+            success: false,
+            message: 'Aucun code trouvé'
+        });
+    }
+
+    if (Date.now() > saved.expires) {
+        resetCodes.delete(email);
+
+        return res.status(400).json({
+            success: false,
+            message: 'Code expiré'
+        });
+    }
+
+    if (saved.code !== code) {
+        return res.status(400).json({
+            success: false,
+            message: 'Code incorrect'
+        });
+    }
+
+    resetCodes.delete(email);
+
+    res.json({
+        success: true,
+        message: 'Code valide'
+    });
+});
 app.listen(PORT, () => {
     console.log(`Serveur démarré ${PORT}`);
 });
