@@ -53,10 +53,32 @@ app.post('/email-verification/send-verification-code', async (req, res) => {
     to: email,
     subject: 'Code de vérification',
     html: `
-        <h1>Votre code</h1>
-        <h2>${code}</h2>
-        <p>Expire dans 15 minutes</p>
-    `
+<div style="background:#0b0820;padding:30px;font-family:Arial,sans-serif;color:white;">
+  <div style="max-width:520px;margin:auto;background:#15102e;border-radius:22px;padding:32px;text-align:center;">
+    
+    <h1 style="margin:0 0 10px;font-size:30px;color:#ffffff;">
+      NexusNapia
+    </h1>
+
+    <p style="color:#bdb7ff;font-size:16px;">
+      Code de vérification
+    </p>
+
+    <div style="font-size:42px;font-weight:bold;letter-spacing:8px;margin:28px 0;color:#ffffff;">
+      ${code}
+    </div>
+
+    <p style="font-size:15px;color:#cfcafc;">
+      Ce code expire dans 15 minutes.
+    </p>
+
+    <p style="font-size:13px;color:#8f89bd;margin-top:28px;">
+      Si vous n’avez pas demandé ce code, ignorez cet email.
+    </p>
+
+  </div>
+</div>
+`
 });
         res.json({
             success: true,
